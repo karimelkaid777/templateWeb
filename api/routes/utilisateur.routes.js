@@ -1,5 +1,6 @@
 module.exports = app => {
     const utilisateur = require("../controllers/utilisateur.controllers.js");
+    const { checkJwt } = require("../middlewares/jwt.middleware.js");
     const { validateRequest } = require("zod-express-middleware");
     const {
         createUtilisateurSchema,
@@ -8,8 +9,8 @@ module.exports = app => {
 
     var router = require("express").Router();
 
-    // GET all utilisateurs
-    router.get("/", utilisateur.getAll);
+    // GET all utilisateurs (protégée)
+    router.get("/", checkJwt, utilisateur.getAll);
 
     // CREATE new utilisateur
     router.post("/",

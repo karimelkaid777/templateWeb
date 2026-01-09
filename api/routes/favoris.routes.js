@@ -1,13 +1,13 @@
 module.exports = app => {
     const favoris = require("../controllers/favoris.controllers.js");
-    const { authenticateToken } = require('../middlewares/auth.middleware');
+    const { checkJwt } = require('../middlewares/jwt.middleware');
     const { validateRequest } = require("zod-express-middleware");
     const { addFavoriSchema, favoriIdParamSchema } = require("../validators/favoris.validator.js");
 
     var router = require("express").Router();
 
     // Toutes les routes favoris nécessitent une authentification
-    router.use(authenticateToken);
+    router.use(checkJwt);
 
     // GET /api/favoris - Récupérer mes favoris
     router.get("/", favoris.getMesFavoris);

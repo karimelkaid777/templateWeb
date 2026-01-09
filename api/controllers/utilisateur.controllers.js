@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require ("uuid");
-const { generateToken } = require('../middlewares/auth.middleware');
+const { generateAccessToken } = require('../middlewares/jwt.middleware');
 const { hashPassword, comparePassword } = require('../middlewares/password.helper');
 
 const db = require("../models");
@@ -73,17 +73,24 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Générer le JWT
-    const token = generateToken(data.id);
+    // Générer le JWT avec payload complet (id, name, email)
+    const user = {
+      id: data.id,
+      name: data.nom,
+      email: data.email
+    };
+    const token = generateAccessToken(user);
 
-    // Renvoyer l'utilisateur avec le token
+    // Définir le header Authorization avec le token
+    res.setHeader('Authorization', `Bearer ${token}`);
+
+    // Renvoyer uniquement les données utilisateur (sans le token dans le body)
     const response = {
       id: data.id,
       nom: data.nom,
       prenom: data.prenom,
       login: data.login,
-      email: data.email,
-      token: token
+      email: data.email
     };
 
     res.send(response);

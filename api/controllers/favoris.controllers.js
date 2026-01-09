@@ -8,7 +8,9 @@ const Pollution = db.pollution;
  */
 exports.getMesFavoris = async (req, res) => {
     try {
+        console.log('\n⭐ [FAVORIS GET] Récupération des favoris...');
         const utilisateurId = req.user.id; // Extrait du JWT par le middleware
+        console.log('👤 [FAVORIS GET] Utilisateur:', req.user.name, '(ID:', utilisateurId + ')');
 
         // Récupérer les favoris avec les détails des pollutions
         const favoris = await Favoris.findAll({
@@ -19,6 +21,8 @@ exports.getMesFavoris = async (req, res) => {
                 attributes: ['id', 'titre', 'type_pollution', 'description', 'date_observation', 'lieu', 'latitude', 'longitude', 'photo_url']
             }]
         });
+
+        console.log(`✅ [FAVORIS GET] ${favoris.length} favori(s) trouvé(s)`);
 
         // Formater la réponse pour renvoyer les pollutions en camelCase
         const pollutions = favoris.map(fav => {
@@ -36,9 +40,10 @@ exports.getMesFavoris = async (req, res) => {
             };
         });
 
+        console.log('📤 [FAVORIS GET] Envoi des favoris au client\n');
         res.json(pollutions);
     } catch (error) {
-        console.error('Erreur getMesFavoris:', error);
+        console.error('❌ [FAVORIS GET] Erreur:', error);
         res.status(500).json({
             message: 'Erreur lors de la récupération des favoris'
         });
@@ -51,16 +56,22 @@ exports.getMesFavoris = async (req, res) => {
  */
 exports.addFavori = async (req, res) => {
     try {
+        console.log('\n➕ [FAVORIS ADD] Ajout d\'un favori...');
         const utilisateurId = req.user.id;
         const { pollutionId } = req.body;
+        console.log('👤 [FAVORIS ADD] Utilisateur:', req.user.name, '(ID:', utilisateurId + ')');
+        console.log('🏭 [FAVORIS ADD] Pollution ID:', pollutionId);
 
         // Vérifier si la pollution existe
         const pollution = await Pollution.findByPk(pollutionId);
         if (!pollution) {
+            console.log('❌ [FAVORIS ADD] Pollution non trouvée');
             return res.status(404).json({
                 message: 'Pollution non trouvée'
             });
         }
+
+        console.log('✅ [FAVORIS ADD] Pollution trouvée:', pollution.titre);
 
         // Vérifier si déjà en favoris
         const existing = await Favoris.findOne({
@@ -71,6 +82,7 @@ exports.addFavori = async (req, res) => {
         });
 
         if (existing) {
+            console.log('⚠️ [FAVORIS ADD] Déjà dans les favoris');
             return res.status(409).json({
                 message: 'Cette pollution est déjà dans vos favoris'
             });
@@ -81,6 +93,8 @@ exports.addFavori = async (req, res) => {
             utilisateur_id: utilisateurId,
             pollution_id: pollutionId
         });
+
+        console.log('✅ [FAVORIS ADD] Favori ajouté avec succès!');
 
         // Renvoyer la pollution formatée
         const formattedPollution = {
@@ -95,9 +109,10 @@ exports.addFavori = async (req, res) => {
             photoUrl: pollution.photo_url
         };
 
+        console.log('📤 [FAVORIS ADD] Envoi de la pollution au client\n');
         res.status(201).json(formattedPollution);
     } catch (error) {
-        console.error('Erreur addFavori:', error);
+        console.error('❌ [FAVORIS ADD] Erreur:', error);
         res.status(500).json({
             message: 'Erreur lors de l\'ajout du favori'
         });

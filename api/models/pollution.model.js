@@ -30,7 +30,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DECIMAL(9,6)
         },
         photo_url: {
-            type: Sequelize.STRING
+            type: Sequelize.TEXT
+        },
+        created_by: {
+            type: Sequelize.STRING,
+            allowNull: true
         }
     });
 
